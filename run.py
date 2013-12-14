@@ -60,7 +60,52 @@ def template_details(tpl_id):
 
 @app.route('/template/<tpl_id>', methods=['POST'])
 def upload_template_package(tpl_id):
-    return "upload"
+    db = dataset.connect(app.config['DATABASE_URI'])
+    tpl_table = db[TEMPLATE_TABLE]
+    tpl_row = tpl_table.find_one(tpl_id=tpl_id)
+    if tpl_row  is None:
+        return error(20, 'unexisted template.')
+
+    can_anyone_upload = app.config['ANYONE_CAN_UPLOAD']
+    can_upload = False
+
+    candidate = request.form.get('secret')
+    can_upload = candidate == app.config['ADMIN_SECRET']
+
+    if can_anyone_upload and not can_upload:
+        candidate = request.form.get('edit_hash')
+        can_uplad = candidate == tpl_row['edit_hash']
+
+    if not can_upload:
+        return error(2, 'access denied')
+
+    f = request.files.get('data')
+    if f:
+        # Template creation/validation
+        template = Template()
+        try:
+            template.init_with_zip(f)
+        except:
+            return error(21, 'invalid template')
+        if not template.check_valid_id():
+            return error(22, 'invalid template id')
+
+        if not template.id == tpl_row['tpl_id']:
+            return error(23, 'invalid template id')
+
+        # Template insertion in database
+        db = dataset.connect(app.config['DATABASE_URI'])
+        tpl_table = db[TEMPLATE_TABLE]
+
+        tpl_table.update(template.to_dict(), ['tpl_id'])
+
+        # Template storage
+        template_folder = app.config['TEMPLATE_FOLDER']
+        f.save(os.path.join(template_folder, template.id))
+        return success('template added', {'tpl_id': template.id, 'edit_hash': template.edit_hash})
+    else:
+        return error(24, 'missing template')
+
 
 @app.route('/template/<tpl_id>.zip', methods=['GET'])
 def download_template_package(tpl_id):
