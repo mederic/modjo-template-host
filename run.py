@@ -11,9 +11,11 @@ app.config.from_object('config.BaseConfiguration')
 
 TEMPLATE_TABLE = 'template'
 
+'''
 @app.route('/template', methods=['GET'])
 def template_list():
     return "List"
+'''
 
 @app.route('/template', methods=['POST'])
 def add_template():
@@ -56,7 +58,19 @@ def add_template():
 
 @app.route('/template/<tpl_id>', methods=['GET'])
 def template_details(tpl_id):
-    return "details"
+    db = dataset.connect(app.config['DATABASE_URI'])
+    tpl_table = db[TEMPLATE_TABLE]
+    tpl_row = tpl_table.find_one(tpl_id=tpl_id)
+    if tpl_row  is None:
+        return error(20, 'unexisted template.')
+
+    result = {}
+    result['tpl_id'] = tpl_row['tpl_id']
+    result['name'] = tpl_row['name']
+    result['description'] = tpl_row['description']
+    result['author'] = tpl_row['author']
+
+    return success('template details', result)
 
 @app.route('/template/<tpl_id>', methods=['POST'])
 def upload_template_package(tpl_id):

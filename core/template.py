@@ -23,6 +23,8 @@ class Template:
         author = metadata.find('author')
         if not author is None:
             self.author = author.text
+        else:
+            self.author = None
 
         self.edit_hash = uuid.uuid4().hex
 
