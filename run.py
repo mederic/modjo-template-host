@@ -3,6 +3,7 @@ import json
 from flask import Flask
 from flask import send_from_directory
 from flask import request
+from flask import abort
 from core.template import *
 import os
 
@@ -126,12 +127,12 @@ def download_template_package(tpl_id):
     db = dataset.connect(app.config['DATABASE_URI'])
     tpl_table = db[TEMPLATE_TABLE]
     if tpl_table.find_one(tpl_id=tpl_id) is None:
-        return error(20, 'unexisted template.')
+        abort(404)
 
     template_folder = app.config['TEMPLATE_FOLDER']
     zip_path = os.path.join(template_folder, tpl_id)
     if not os.path.exists(zip_path):
-        return error(21, 'corrupted server.')
+        abort(404)
 
     return send_from_directory(template_folder, tpl_id, as_attachment=True)
 

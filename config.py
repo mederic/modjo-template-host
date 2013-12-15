@@ -3,7 +3,7 @@ import os
 _basedir = os.path.abspath(os.path.dirname(__file__))
 
 class BaseConfiguration(object):
-    DEBUG = True
+    DEBUG = False
     TESTING = False
 
     ADMIN_SECRET = 'SecretKey'
