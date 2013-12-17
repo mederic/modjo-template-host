@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block body %}
+
+    {% if success == True %}
+        <div class="alert alert-success">Your template has been successfully uploaded !</div>
+    {% endif %}
+    {% if error == True %}
+        <div class="alert alert-warning">Your template has not been uploaded. Check your secret key or your template zip...</div>
+    {% endif %}
+
+    <h1>Upload a new template</h1>
+    
+    <form method="post" role="form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="secretKey">Secret key</label>
+            <input type="password" name="secret" class="form-control" id="secretKey" placeholder="secret key...">
+        </div>
+        <div class="form-group">
+            <label for="templateData">File input</label>
+            <input type="file" name="data" id="templateData">
+            <p class="help-block">Zip containing your new package...</p>
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+    
+{% endblock %}
