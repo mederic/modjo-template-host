@@ -87,7 +87,7 @@ def do_add_template(must_return_bool, request_files):
             if not os.path.exists(template_folder):
                 os.makedirs(template_folder)
 
-            f.save(os.path.join(template_folder, template.id))
+            f.save(os.path.join(template_folder, template.id + '.zip'))
             if must_return_bool:
                 return True
             else:
